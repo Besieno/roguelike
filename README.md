@@ -1,45 +1,130 @@
-# 🎮 Roguelike (C++ Puro)
+# Roguelike C++ - prototipo grafico de referencia
 
-Este é um projeto de um jogo 2D desenvolvido em C++ com foco em alta performance, gerenciamento eficiente de memória e suporte a mapas gigantes utilizando o sistema de **Chunks**. (mesmo não precisando)
+Este repositorio contem um prototipo completo de estudo para o trabalho T3 - Roguelike - 2026 da disciplina Algoritmos e Programacao II.
 
----
+Importante: esta branch `prototype/graphical-reference` e uma versao de referencia pessoal para estudo, comparacao e visualizacao de arquitetura. Ela nao deve ser entregue como trabalho final sem entendimento, adaptacao e reimplementacao propria do grupo.
 
-## 📂 Estrutura de Pastas
+## Biblioteca grafica
+
+O pedido original dava preferencia a SFML. Nesta maquina, SFML nao estava instalado, mas Raylib estava disponivel no MSYS2 UCRT64 e foi validado com `g++`. Por isso o prototipo usa **Raylib**, uma biblioteca grafica simples para C/C++ que compila bem no Windows e mantem o projeto didatico.
+
+Nao foram usados Unity, Unreal, Godot, IA generativa, APIs externas, Python no jogo ou engine grande.
+
+## Como compilar no Windows
+
+Caminho testado nesta maquina:
+
+1. Instale o MSYS2: https://www.msys2.org/
+2. Abra o terminal **UCRT64** do MSYS2.
+3. Instale compilador e Raylib, se ainda nao tiver:
+
+```bash
+pacman -S --needed mingw-w64-ucrt-x86_64-gcc mingw-w64-ucrt-x86_64-raylib
+```
+
+4. No PowerShell, a partir da raiz do projeto, rode:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\build_windows.ps1
+```
+
+O executavel sera gerado em:
+
+```text
+build/roguelike.exe
+```
+
+O script tambem copia `libraylib.dll` para `build/` quando ela existe no MSYS2.
+
+## Alternativa com CMake
+
+O projeto inclui `CMakeLists.txt`, mas o CMake nao estava instalado nesta maquina durante a validacao. Se voce instalar CMake, pode tentar:
+
+```powershell
+cmake -S . -B build -G "MinGW Makefiles"
+cmake --build build
+```
+
+## Como executar
+
+Depois de compilar:
+
+```powershell
+.\build\roguelike.exe
+```
+
+## Controles
+
+- `WASD` ou setas: mover
+- `Espaco`: atacar inimigo adjacente
+- `E`: conversar/interagir com NPC adjacente
+- `H`: usar pocao de vida
+- `ESC`: pausar ou voltar
+- `Enter`: selecionar opcao do menu
+- `1`, `2`, `3`, `4`: distribuir atributos ao subir de nivel
+
+## Mecanicas implementadas
+
+- Menu funcional com iniciar, como jogar, itens, pontuacao e sair
+- Jogo 2D top-down em grade
+- Movimento em quatro direcoes
+- Colisao com paredes, portas fechadas, agua e obstaculos
+- Portas abertas com chaves
+- Itens: pocao, chave, espada, escudo, power-up e reliquia
+- Inimigos diferentes: errante, perseguidor, brutamontes e boss
+- IA simples: movimento aleatorio e perseguicao por distancia
+- Sistema de combate com dano, defesa, acerto e esquiva
+- Armadilhas que causam dano e se desativam
+- Armadilhas tambem podem ser ativadas por inimigos
+- Fog of war: preto para nunca explorado, escuro para ja explorado fora da visao
+- HUD com HP, nivel, XP, pontuacao, chaves, pocoes e atributos
+- XP, subida de nivel e distribuicao de atributos
+- Atributos impactam dano, vida maxima, defesa, acerto, esquiva e frequencia de turnos rapidos
+- NPCs com dialogo e alteracao real do mapa
+- Boss final que altera a arena ao ficar com pouca vida
+- Condicao de derrota por HP zero
+- Condicao de vitoria ao derrotar o boss e alcancar a saida final
+
+## Estrutura de pastas
 
 ```text
 roguelike/
-│
-├── bin/                    # Executáveis gerados (.exe)
-├── assets/                 # Recursos (imagens, sprites, sons)
-│
-├── include/                # Arquivos de cabeçalho (.hpp)
-│   ├── core/               # Motor básico (Loop do jogo, Janela, Input)
-│   ├── graphics/           # Sistema visual (Renderer, Texturas)
-│   └── world/              # Lógica do mundo (Tile, Chunk, WorldManager)
-│
-├── src/                    # Arquivos de código fonte (.cpp)
-│   ├── core/
-│   ├── graphics/
-│   └── world/
-│
-└── main.cpp                # Ponto de entrada do programa
+|-- CMakeLists.txt
+|-- README.md
+|-- build_windows.ps1
+|-- assets/
+|   |-- sprites/
+|   |-- fonts/
+|   `-- sounds/
+|-- docs/
+|   |-- arquitetura.md
+|   |-- checklist_pdf.md
+|   `-- defesa_estudo.md
+|-- src/
+|   |-- Combat.h / Combat.cpp
+|   |-- Enemy.h / Enemy.cpp
+|   |-- Game.h / Game.cpp
+|   |-- Item.h / Item.cpp
+|   |-- Map.h / Map.cpp
+|   |-- NPC.h / NPC.cpp
+|   |-- Player.h / Player.cpp
+|   |-- UI.h / UI.cpp
+|   `-- Utils.h / Utils.cpp
+`-- main.cpp
 ```
 
-## 🧠 Como Funciona a Arquitetura (Fluxo Orgânico)
+## Observacoes para estudo
 
-```text
-[main.cpp] ➔ [Game Loop] ➔ [WorldManager] ➔ [Renderer]
-```
+Leia primeiro:
 
-1. `main.cpp`: Apenas liga o motor, instanciando a classe principal Game.
-2. `core/Game`: Controla o tempo e o teclado. Ele sabe a posição de pixels do Jogador.
-3. `world/WorldManager`: Recebe a posição do jogador. Se o jogador andar, ele calcula em qual quadrante (Chunk) o jogador está e carrega os blocos vizinhos na memória RAM, deletando os que ficaram para trás.
-4. `graphics/Renderer`: Recebe as informações dos blocos ativos e desenha na tela apenas o que a câmera consegue enxergar.
+- `docs/checklist_pdf.md`: criterio por criterio do PDF
+- `docs/defesa_estudo.md`: explicacao didatica para estudar o codigo
+- `docs/arquitetura.md`: relacao entre os modulos
 
-## 🧱 O Sistema de Chunks ($16 \times 16$)
+TODOs futuros possiveis, sem implementar agora:
 
-Para suportar mapas de proporções massivas (ex: $100.000 \times 100.000$ ) sem estourar a memória RAM, o mundo é fatiado em Chunks:
-
-- Cada Chunk é uma matriz estática de $16 \times 16$ blocos.
-- O WorldManager guarda os chunks ativos em um dicionário dinâmico (unordered_map).
-- Resultado: O jogo consome apenas a memória dos 9 chunks ao redor do jogador, mantendo o desempenho leve e constante em qualquer computador.
+- Geracao procedural avancada de mapas
+- Boss adaptativo
+- Inimigos com comportamento treinado
+- NPCs com dialogos externos
+- Balanceamento automatico de dificuldade
