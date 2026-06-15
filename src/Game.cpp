@@ -56,6 +56,8 @@ namespace Rogue
     {
         SetConfigFlags(FLAG_VSYNC_HINT);
         InitWindow(ScreenWidth, ScreenHeight, "Roguelike - referencia de estudo");
+        // Raylib fecha a janela com ESC por padrao; o jogo usa ESC para voltar/pausar.
+        SetExitKey(KEY_NULL);
         SetTargetFPS(60);
 
         while (!WindowShouldClose() && !shouldClose)
