@@ -2,7 +2,7 @@
 
 Este repositorio contem um prototipo completo de estudo para o trabalho T3 - Roguelike - 2026 da disciplina Algoritmos e Programacao II.
 
-Importante: esta branch `prototype/graphical-reference` e uma versao de referencia pessoal para estudo, comparacao e visualizacao de arquitetura. Ela nao deve ser entregue como trabalho final sem entendimento, adaptacao e reimplementacao propria do grupo.
+Importante: este repositorio contem uma versao de referencia pessoal para estudo, comparacao e visualizacao de arquitetura. Ela nao deve ser entregue como trabalho final sem entendimento, adaptacao e reimplementacao propria do grupo.
 
 ## Biblioteca grafica
 
@@ -27,6 +27,21 @@ pacman -S --needed mingw-w64-ucrt-x86_64-gcc mingw-w64-ucrt-x86_64-raylib
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File .\build_windows.ps1
 ```
+
+Se o PowerShell estiver em outra pasta, como `C:\Users\berna`, primeiro entre na pasta do projeto:
+
+```powershell
+cd C:\C++\roguelike
+powershell -NoProfile -ExecutionPolicy Bypass -File .\build_windows.ps1
+```
+
+Ou rode usando o caminho completo do script:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File C:\C++\roguelike\build_windows.ps1
+```
+
+Erro comum: o nome correto do script termina em `.ps1`. Se usar `.\build_windows.ps`, o PowerShell mostra erro porque `.ps` nao e uma extensao valida de script PowerShell.
 
 O executavel sera gerado em:
 
