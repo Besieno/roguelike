@@ -28,7 +28,7 @@ pacman -S --needed mingw-w64-ucrt-x86_64-gcc mingw-w64-ucrt-x86_64-raylib
 powershell -NoProfile -ExecutionPolicy Bypass -File .\build_windows.ps1
 ```
 
-Se o PowerShell estiver em outra pasta, como `C:\Users\berna`, primeiro entre na pasta do projeto:
+Se o PowerShell estiver em outra pasta, como `C:\Users\nome`, primeiro entre na pasta do projeto:
 
 ```powershell
 cd C:\C++\roguelike
