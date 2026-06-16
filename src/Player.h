@@ -27,6 +27,7 @@ namespace Rogue
         int pendingAttributePoints = 0;
         bool hasSword = false;
         bool hasShield = false;
+        int difficultyHpBonus = 0;
         Attributes attributes;
 
         int moves = 0;

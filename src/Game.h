@@ -6,6 +6,7 @@
 #include "NPC.h"
 #include "Player.h"
 
+#include <raylib.h>
 #include <string>
 #include <vector>
 
@@ -40,8 +41,21 @@ namespace Rogue
         std::string message = "Explore as ruinas.";
         int currentLevel = 1;
         int menuIndex = 0;
+        Difficulty difficulty = Difficulty::Medium;
+        Music ambientMusic {};
+        bool musicLoaded = false;
+        bool audioReady = false;
         bool shouldClose = false;
 
+        void setupAudio();
+        void updateAudio();
+        void shutdownAudio();
+        void cycleDifficulty();
+        void applyDifficultyToPlayer();
+        void applyDifficultyToEnemies();
+        int trapDamage() const;
+        int enemyDetectionBonus() const;
+        int quickTurnBase() const;
         void startNewGame();
         void loadCurrentLevel();
         void update();

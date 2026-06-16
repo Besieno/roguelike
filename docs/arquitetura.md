@@ -13,6 +13,7 @@ O projeto foi separado por responsabilidade para ficar didatico e facil de defen
 - `Combat`: concentra regras de ataque, defesa, acerto e esquiva.
 - `UI`: desenha mapa, entidades, HUD e menus.
 - `Utils`: funcoes pequenas e tipos basicos.
+- `assets/sounds`: guarda a musica ambiente usada pela Raylib.
 
 ## Relacao entre os modulos
 
@@ -33,6 +34,7 @@ O projeto foi separado por responsabilidade para ficar didatico e facil de defen
 - `NPC` para conversas.
 - `Player` para XP, atributos, pocaes e pontuacao.
 - `UI` para desenhar.
+- Raylib Audio para tocar musica de ambiente em loop.
 
 ## Por que separar assim
 
@@ -47,6 +49,26 @@ Cada arquivo responde por uma pergunta:
 - O que acontece quando falo com NPC? `NPC`
 
 Isso ajuda o professor a pedir mudancas pequenas na defesa sem quebrar o projeto todo.
+
+## Como mudar a dificuldade
+
+A dificuldade fica no `enum class Difficulty`, em `src/Utils.h`.
+
+Os efeitos principais ficam em `src/Game.cpp`:
+
+- `applyDifficultyToPlayer`: altera bonus/penalidade de HP.
+- `applyDifficultyToEnemies`: altera vida, ataque, defesa e inimigos extras.
+- `trapDamage`: altera dano de armadilhas.
+- `enemyDetectionBonus`: altera distancia de perseguicao.
+- `quickTurnBase`: altera frequencia dos turnos rapidos.
+
+Para adicionar uma nova dificuldade, crie um novo valor no enum e ajuste essas funcoes.
+
+## Como trocar a musica
+
+Substitua `assets/sounds/dungeon_ambience.wav` por outro arquivo WAV compatvel.
+
+O carregamento fica em `Game::setupAudio`. A funcao procura o arquivo tanto quando o jogo roda pela raiz do projeto quanto quando roda pela pasta `build`.
 
 ## Como adicionar novos inimigos
 

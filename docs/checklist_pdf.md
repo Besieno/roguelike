@@ -24,6 +24,8 @@ Status usado: implementado, parcial ou nao implementado.
 | Historia e NPCs | Implementado | `README.md`, `NPC.cpp`, `UI::drawMenu` | Historia simples das Ruinas de Aster e NPCs com dialogo. |
 | Mapa sofre alteracoes por NPCs, mobs e jogador | Implementado | `openSecretPassage`, `bossChangesArena`, `Game::moveEnemy`, `Game::openDoorOrBlockMessage` | NPC abre passagem, jogador abre porta, armadilha desativa, boss altera arena. |
 | Boss final | Implementado | `EnemyType::Boss`, `Map::loadLevel`, `Game::tryUseExit` | Boss com mais vida, dano e mudanca de arena. |
+| Feedback sonoro/ambientacao extra | Implementado | `Game::setupAudio`, `assets/sounds/dungeon_ambience.wav` | Musica ambiente de suspense em loop usando Raylib audio. |
+| Dificuldade configuravel extra | Implementado | `Game::cycleDifficulty`, `Game::applyDifficultyToPlayer`, `Game::applyDifficultyToEnemies` | Facil, Medio e Dificil afetam HP, pocoes, inimigos, armadilhas e ritmo. |
 | Uso de struct | Implementado | `Vec2i`, `Player`, `Attributes`, `Enemy`, `Item`, `Tile`, `Map`, `NPC` | Structs concentram os dados principais do jogo. |
 | Sub-rotinas com parametros e referencias corretos | Implementado | `Player&`, `Map&`, `Enemy&`, `NPC&` em varios arquivos | Funcoes recebem referencias quando precisam alterar estado. |
 | Ponteiros e referencias | Implementado | `tileAt`, `enemyAt`, `adjacentEnemy`, `findAdjacentNpc` | Ponteiros indicam "encontrado ou nao encontrado" sem copiar objetos. |

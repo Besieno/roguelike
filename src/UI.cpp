@@ -49,7 +49,7 @@ namespace Rogue
         }
     }
 
-    void drawGame(const Map& map, const Player& player, const std::vector<Enemy>& enemies, const std::vector<Item>& items, const std::vector<NPC>& npcs, const std::string& message)
+    void drawGame(const Map& map, const Player& player, const std::vector<Enemy>& enemies, const std::vector<Item>& items, const std::vector<NPC>& npcs, const std::string& message, Difficulty difficulty)
     {
         ClearBackground(Background);
 
@@ -121,22 +121,23 @@ namespace Rogue
         drawTextLine("Roguelike", HudX, 24, 28, TextMain);
         drawTextLine(map.title, HudX, 58, 18, Accent);
         drawTextLine("Nivel da masmorra: " + intToString(map.level), HudX, 88, 18, TextMuted);
+        drawTextLine("Dificuldade: " + difficultyName(difficulty), HudX, 112, 18, TextMuted);
 
-        DrawRectangle(HudX, 126, 220, 18, Color {75, 28, 38, 255});
+        DrawRectangle(HudX, 140, 220, 18, Color {75, 28, 38, 255});
         int hpWidth = static_cast<int>(220.0f * player.hp / player.maxHp);
-        DrawRectangle(HudX, 126, hpWidth, 18, Color {224, 72, 92, 255});
-        drawTextLine("HP " + intToString(player.hp) + "/" + intToString(player.maxHp), HudX + 8, 125, 18, WHITE);
+        DrawRectangle(HudX, 140, hpWidth, 18, Color {224, 72, 92, 255});
+        drawTextLine("HP " + intToString(player.hp) + "/" + intToString(player.maxHp), HudX + 8, 139, 18, WHITE);
 
-        drawTextLine("Nivel: " + intToString(player.level), HudX, 168, 18, TextMain);
-        drawTextLine("XP: " + intToString(player.xp) + "/" + intToString(player.xpToNext), HudX, 196, 18, TextMain);
-        drawTextLine("Pontos: " + intToString(calculateFinalScore(player)), HudX, 224, 18, TextMain);
-        drawTextLine("Chaves: " + intToString(player.keys) + "  Pocoes: " + intToString(player.potions), HudX, 252, 18, TextMain);
+        drawTextLine("Nivel: " + intToString(player.level), HudX, 176, 18, TextMain);
+        drawTextLine("XP: " + intToString(player.xp) + "/" + intToString(player.xpToNext), HudX, 204, 18, TextMain);
+        drawTextLine("Pontos: " + intToString(calculateFinalScore(player)), HudX, 232, 18, TextMain);
+        drawTextLine("Chaves: " + intToString(player.keys) + "  Pocoes: " + intToString(player.potions), HudX, 260, 18, TextMain);
 
-        drawTextLine("Atributos", HudX, 298, 20, Accent);
-        drawTextLine("Forca: " + intToString(player.attributes.strength), HudX, 330, 18, TextMuted);
-        drawTextLine("Vitalidade: " + intToString(player.attributes.vitality), HudX, 356, 18, TextMuted);
-        drawTextLine("Defesa: " + intToString(player.attributes.defense), HudX, 382, 18, TextMuted);
-        drawTextLine("Agilidade: " + intToString(player.attributes.agility), HudX, 408, 18, TextMuted);
+        drawTextLine("Atributos", HudX, 306, 20, Accent);
+        drawTextLine("Forca: " + intToString(player.attributes.strength), HudX, 338, 18, TextMuted);
+        drawTextLine("Vitalidade: " + intToString(player.attributes.vitality), HudX, 364, 18, TextMuted);
+        drawTextLine("Defesa: " + intToString(player.attributes.defense), HudX, 390, 18, TextMuted);
+        drawTextLine("Agilidade: " + intToString(player.attributes.agility), HudX, 416, 18, TextMuted);
 
         drawTextLine("Controles", HudX, 462, 20, Accent);
         drawTextLine("WASD/setas: mover", HudX, 494, 17, TextMuted);
@@ -149,7 +150,7 @@ namespace Rogue
         drawTextLine(message, HudX + 10, 648, 16, TextMain);
     }
 
-    void drawMenu(MenuScreen screen, int selectedIndex, const Player& player)
+    void drawMenu(MenuScreen screen, int selectedIndex, const Player& player, Difficulty difficulty)
     {
         ClearBackground(Background);
         drawTextLine("Roguelike - referencia grafica", 110, 70, 34, TextMain);
@@ -157,8 +158,9 @@ namespace Rogue
 
         if (screen == MenuScreen::Main || screen == MenuScreen::Pause)
         {
-            const std::array<std::string, 5> options {
+            const std::array<std::string, 6> options {
                 "Iniciar jogo",
+                "Dificuldade: " + difficultyName(difficulty),
                 "Como jogar",
                 "Itens",
                 "Pontuacao",
@@ -176,6 +178,8 @@ namespace Rogue
             {
                 drawTextLine("Jogo pausado. Enter na primeira opcao continua.", 140, 440, 20, TextMuted);
             }
+            drawTextLine(difficultyDescription(difficulty), 140, 474, 18, TextMuted);
+            drawTextLine("Use esquerda/direita ou Enter na dificuldade para trocar.", 140, 502, 18, TextMuted);
             return;
         }
 

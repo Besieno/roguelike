@@ -15,7 +15,7 @@ namespace Rogue
     void recalculatePlayerStats(Player& player)
     {
         // Atributos alteram mecanicas reais: vitalidade aumenta vida maxima.
-        player.maxHp = 24 + player.attributes.vitality * 5;
+        player.maxHp = std::max(20, 24 + player.attributes.vitality * 5 + player.difficultyHpBonus);
         if (player.hp > player.maxHp)
         {
             player.hp = player.maxHp;
