@@ -58,24 +58,216 @@ namespace Rogue
         InitWindow(ScreenWidth, ScreenHeight, "Roguelike - referencia de estudo");
         // Raylib fecha a janela com ESC por padrao; o jogo usa ESC para voltar/pausar.
         SetExitKey(KEY_NULL);
+        setupAudio();
         SetTargetFPS(60);
 
         while (!WindowShouldClose() && !shouldClose)
         {
+            updateAudio();
             update();
             BeginDrawing();
             draw();
             EndDrawing();
         }
 
+        shutdownAudio();
         CloseWindow();
+    }
+
+    void Game::setupAudio()
+    {
+        InitAudioDevice();
+        audioReady = IsAudioDeviceReady();
+        if (!audioReady)
+        {
+            return;
+        }
+
+        const char* rootPath = "assets/sounds/dungeon_ambience.wav";
+        const char* buildPath = "../assets/sounds/dungeon_ambience.wav";
+        const char* musicPath = FileExists(rootPath) ? rootPath : buildPath;
+        if (!FileExists(musicPath))
+        {
+            return;
+        }
+
+        ambientMusic = LoadMusicStream(musicPath);
+        ambientMusic.looping = true;
+        SetMusicVolume(ambientMusic, 0.42f);
+        PlayMusicStream(ambientMusic);
+        musicLoaded = true;
+    }
+
+    void Game::updateAudio()
+    {
+        if (musicLoaded)
+        {
+            UpdateMusicStream(ambientMusic);
+        }
+    }
+
+    void Game::shutdownAudio()
+    {
+        if (musicLoaded)
+        {
+            StopMusicStream(ambientMusic);
+            UnloadMusicStream(ambientMusic);
+            musicLoaded = false;
+        }
+        if (audioReady)
+        {
+            CloseAudioDevice();
+            audioReady = false;
+        }
+    }
+
+    void Game::cycleDifficulty()
+    {
+        if (difficulty == Difficulty::Easy)
+        {
+            difficulty = Difficulty::Medium;
+        }
+        else if (difficulty == Difficulty::Medium)
+        {
+            difficulty = Difficulty::Hard;
+        }
+        else
+        {
+            difficulty = Difficulty::Easy;
+        }
+    }
+
+    void Game::applyDifficultyToPlayer()
+    {
+        if (difficulty == Difficulty::Easy)
+        {
+            player.difficultyHpBonus = 14;
+        }
+        else if (difficulty == Difficulty::Hard)
+        {
+            player.difficultyHpBonus = -8;
+        }
+        else
+        {
+            player.difficultyHpBonus = 0;
+        }
+        recalculatePlayerStats(player);
+    }
+
+    void Game::applyDifficultyToEnemies()
+    {
+        for (Enemy& enemy : enemies)
+        {
+            if (difficulty == Difficulty::Easy)
+            {
+                enemy.maxHp = std::max(4, enemy.maxHp * 3 / 4);
+                enemy.hp = enemy.maxHp;
+                enemy.attack = std::max(1, enemy.attack - 1);
+                enemy.scoreReward = std::max(10, enemy.scoreReward * 3 / 4);
+            }
+            else if (difficulty == Difficulty::Hard)
+            {
+                enemy.maxHp = enemy.maxHp * 3 / 2;
+                enemy.hp = enemy.maxHp;
+                enemy.attack += isBoss(enemy) ? 4 : 2;
+                enemy.defense += 1;
+                enemy.xpReward += 2;
+                enemy.scoreReward = enemy.scoreReward * 5 / 4;
+            }
+        }
+
+        if (difficulty != Difficulty::Hard)
+        {
+            return;
+        }
+
+        auto addPressureEnemy = [this](EnemyType type, Vec2i position)
+        {
+            if (canCreatureWalkOn(map, position) && !isOccupiedByEnemy(position) && !isOccupiedByNpc(position) && position != player.position)
+            {
+                Enemy enemy = makeEnemy(type, position);
+                enemy.maxHp = enemy.maxHp * 3 / 2;
+                enemy.hp = enemy.maxHp;
+                enemy.attack += isBoss(enemy) ? 4 : 2;
+                enemy.defense += 1;
+                enemy.xpReward += 2;
+                enemy.scoreReward = enemy.scoreReward * 5 / 4;
+                enemies.push_back(enemy);
+            }
+        };
+
+        if (currentLevel == 1)
+        {
+            addPressureEnemy(EnemyType::Hunter, {10, 15});
+        }
+        else if (currentLevel == 2)
+        {
+            addPressureEnemy(EnemyType::Hunter, {4, 11});
+            addPressureEnemy(EnemyType::Brute, {20, 5});
+        }
+        else
+        {
+            addPressureEnemy(EnemyType::Hunter, {8, 5});
+            addPressureEnemy(EnemyType::Brute, {22, 15});
+        }
+    }
+
+    int Game::trapDamage() const
+    {
+        int baseDamage = 9;
+        if (difficulty == Difficulty::Easy)
+        {
+            baseDamage = 6;
+        }
+        else if (difficulty == Difficulty::Hard)
+        {
+            baseDamage = 14;
+        }
+        return std::max(2, baseDamage - playerDefensePower(player));
+    }
+
+    int Game::enemyDetectionBonus() const
+    {
+        if (difficulty == Difficulty::Easy)
+        {
+            return -2;
+        }
+        if (difficulty == Difficulty::Hard)
+        {
+            return 3;
+        }
+        return 0;
+    }
+
+    int Game::quickTurnBase() const
+    {
+        if (difficulty == Difficulty::Easy)
+        {
+            return 7;
+        }
+        if (difficulty == Difficulty::Hard)
+        {
+            return 10;
+        }
+        return 8;
     }
 
     void Game::startNewGame()
     {
         player = createPlayer();
+        applyDifficultyToPlayer();
+        player.hp = player.maxHp;
+        if (difficulty == Difficulty::Easy)
+        {
+            player.potions = 1;
+            player.score -= 25;
+        }
+        else if (difficulty == Difficulty::Hard)
+        {
+            player.score += 50;
+        }
         currentLevel = 1;
-        message = "As ruinas despertam. Encontre a reliquia.";
+        message = "Modo " + difficultyName(difficulty) + ": as ruinas despertam.";
         loadCurrentLevel();
         state = GameState::Playing;
     }
@@ -83,7 +275,8 @@ namespace Rogue
     void Game::loadCurrentLevel()
     {
         loadLevel(map, currentLevel, player, enemies, items, npcs);
-        message = "Nivel " + intToString(currentLevel) + ": " + map.title;
+        applyDifficultyToEnemies();
+        message = "Nivel " + intToString(currentLevel) + " (" + difficultyName(difficulty) + "): " + map.title;
     }
 
     void Game::update()
@@ -106,7 +299,7 @@ namespace Rogue
     {
         if (state == GameState::Playing || state == GameState::Paused)
         {
-            drawGame(map, player, enemies, items, npcs, message);
+            drawGame(map, player, enemies, items, npcs, message, difficulty);
             if (state == GameState::Paused)
             {
                 DrawRectangle(0, 0, ScreenWidth, ScreenHeight, Color {0, 0, 0, 130});
@@ -115,19 +308,19 @@ namespace Rogue
         }
         else if (state == GameState::MainMenu)
         {
-            drawMenu(MenuScreen::Main, menuIndex, player);
+            drawMenu(MenuScreen::Main, menuIndex, player, difficulty);
         }
         else if (state == GameState::HowTo)
         {
-            drawMenu(MenuScreen::HowTo, menuIndex, player);
+            drawMenu(MenuScreen::HowTo, menuIndex, player, difficulty);
         }
         else if (state == GameState::ItemsHelp)
         {
-            drawMenu(MenuScreen::Items, menuIndex, player);
+            drawMenu(MenuScreen::Items, menuIndex, player, difficulty);
         }
         else if (state == GameState::ScoringHelp)
         {
-            drawMenu(MenuScreen::Scoring, menuIndex, player);
+            drawMenu(MenuScreen::Scoring, menuIndex, player, difficulty);
         }
         else if (state == GameState::LevelUp)
         {
@@ -135,11 +328,11 @@ namespace Rogue
         }
         else if (state == GameState::GameOver)
         {
-            drawMenu(MenuScreen::GameOver, menuIndex, player);
+            drawMenu(MenuScreen::GameOver, menuIndex, player, difficulty);
         }
         else if (state == GameState::Victory)
         {
-            drawMenu(MenuScreen::Victory, menuIndex, player);
+            drawMenu(MenuScreen::Victory, menuIndex, player, difficulty);
         }
     }
 
@@ -175,11 +368,16 @@ namespace Rogue
 
         if (IsKeyPressed(KEY_UP) || IsKeyPressed(KEY_W))
         {
-            menuIndex = (menuIndex + 4) % 5;
+            menuIndex = (menuIndex + 5) % 6;
         }
         if (IsKeyPressed(KEY_DOWN) || IsKeyPressed(KEY_S))
         {
-            menuIndex = (menuIndex + 1) % 5;
+            menuIndex = (menuIndex + 1) % 6;
+        }
+
+        if ((IsKeyPressed(KEY_LEFT) || IsKeyPressed(KEY_RIGHT) || IsKeyPressed(KEY_A) || IsKeyPressed(KEY_D)) && menuIndex == 1)
+        {
+            cycleDifficulty();
         }
 
         if (IsKeyPressed(KEY_ENTER))
@@ -190,17 +388,21 @@ namespace Rogue
             }
             else if (menuIndex == 1)
             {
-                state = GameState::HowTo;
+                cycleDifficulty();
             }
             else if (menuIndex == 2)
             {
-                state = GameState::ItemsHelp;
+                state = GameState::HowTo;
             }
             else if (menuIndex == 3)
             {
-                state = GameState::ScoringHelp;
+                state = GameState::ItemsHelp;
             }
             else if (menuIndex == 4)
+            {
+                state = GameState::ScoringHelp;
+            }
+            else if (menuIndex == 5)
             {
                 shouldClose = true;
             }
@@ -361,7 +563,7 @@ namespace Rogue
         }
 
         // Agilidade tambem impacta frequencia: em alguns turnos rapidos os inimigos nao agem.
-        int quickTurnEvery = std::max(3, 8 - player.attributes.agility);
+        int quickTurnEvery = std::max(3, quickTurnBase() - player.attributes.agility);
         bool quickTurn = (player.moves > 0 && player.moves % quickTurnEvery == 0);
         if (quickTurn)
         {
@@ -450,7 +652,7 @@ namespace Rogue
             return directions[randomInt(0, 3)];
         }
 
-        int detection = isBoss(enemy) ? 12 : 7;
+        int detection = std::max(3, (isBoss(enemy) ? 12 : 7) + enemyDetectionBonus());
         if (manhattanDistance(enemy.position, player.position) > detection && enemy.type != EnemyType::Brute)
         {
             return directions[randomInt(0, 3)];
@@ -585,7 +787,7 @@ namespace Rogue
         {
             tile->trapActive = false;
             tile->type = TileType::Floor;
-            player.hp -= std::max(2, 9 - playerDefensePower(player));
+            player.hp -= trapDamage();
             player.trapsTriggered += 1;
             message = "Armadilha ativada e desarmada.";
         }

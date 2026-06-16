@@ -23,7 +23,7 @@ namespace Rogue
         LevelUp
     };
 
-    void drawGame(const Map& map, const Player& player, const std::vector<Enemy>& enemies, const std::vector<Item>& items, const std::vector<NPC>& npcs, const std::string& message);
-    void drawMenu(MenuScreen screen, int selectedIndex, const Player& player);
+    void drawGame(const Map& map, const Player& player, const std::vector<Enemy>& enemies, const std::vector<Item>& items, const std::vector<NPC>& npcs, const std::string& message, Difficulty difficulty);
+    void drawMenu(MenuScreen screen, int selectedIndex, const Player& player, Difficulty difficulty);
     void drawLevelUp(const Player& player, const std::string& message);
 }

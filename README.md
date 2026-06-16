@@ -61,6 +61,7 @@ Depois de compilar:
 - `H`: usar pocao de vida
 - `ESC`: pausar ou voltar
 - `Enter`: selecionar opcao do menu
+- Esquerda/direita no menu: trocar dificuldade
 - `1`, `2`, `3`, `4`: distribuir atributos ao subir de nivel
 
 ## Mecanicas implementadas
@@ -84,6 +85,8 @@ Depois de compilar:
 - Boss final que altera a arena ao ficar com pouca vida
 - Condicao de derrota por HP zero
 - Condicao de vitoria ao derrotar o boss e alcancar a saida final
+- Musica ambiente de suspense em loop
+- Dificuldades Facil, Medio e Dificil com impacto real em HP, pocoes, inimigos, armadilhas e ritmo dos turnos
 
 ## Estrutura de pastas
 
@@ -96,6 +99,7 @@ roguelike/
 |   |-- sprites/
 |   |-- fonts/
 |   `-- sounds/
+|       `-- dungeon_ambience.wav
 |-- docs/
 |   |-- arquitetura.md
 |   |-- checklist_pdf.md

@@ -38,6 +38,33 @@ O loop fica em `Game::run`:
 
 O estado atual (`GameState`) decide se o jogo atualiza menu, gameplay, level up, vitoria ou derrota.
 
+## Audio
+
+`Game::setupAudio` inicializa o dispositivo de audio da Raylib, carrega `assets/sounds/dungeon_ambience.wav`, define volume baixo e deixa a musica em loop.
+
+`Game::updateAudio` chama `UpdateMusicStream` a cada frame. Isso e necessario em Raylib para musicas streamadas continuarem tocando.
+
+`Game::shutdownAudio` descarrega a musica e fecha o dispositivo de audio ao sair.
+
+## Dificuldade
+
+A dificuldade fica em `Difficulty`, definido em `Utils.h`.
+
+O menu permite alternar entre:
+
+- `Facil`: mais HP, uma pocao inicial, inimigos mais fracos e armadilhas menos punitivas.
+- `Medio`: valores base.
+- `Dificil`: menos HP, inimigos mais fortes, inimigos extras, armadilhas mais fortes e menos turnos rapidos.
+
+As principais funcoes sao:
+
+- `cycleDifficulty`: troca a dificuldade no menu.
+- `applyDifficultyToPlayer`: aplica bonus/penalidade de HP.
+- `applyDifficultyToEnemies`: ajusta vida, ataque, defesa e adiciona inimigos extras no dificil.
+- `trapDamage`: muda dano de armadilha conforme dificuldade.
+- `enemyDetectionBonus`: muda distancia de perseguicao.
+- `quickTurnBase`: muda a frequencia dos turnos rapidos por agilidade.
+
 ## Renderizacao
 
 `UI::drawGame` desenha:

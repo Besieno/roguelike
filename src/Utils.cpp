@@ -49,4 +49,29 @@ namespace Rogue
     {
         return std::to_string(value);
     }
+
+    std::string difficultyName(Difficulty difficulty)
+    {
+        switch (difficulty)
+        {
+            case Difficulty::Easy: return "Facil";
+            case Difficulty::Medium: return "Medio";
+            case Difficulty::Hard: return "Dificil";
+        }
+        return "Medio";
+    }
+
+    std::string difficultyDescription(Difficulty difficulty)
+    {
+        switch (difficulty)
+        {
+            case Difficulty::Easy:
+                return "Mais vida, menos dano e inimigos mais lentos.";
+            case Difficulty::Medium:
+                return "Equilibrado para estudar as mecanicas.";
+            case Difficulty::Hard:
+                return "Menos folga, inimigos fortes e mais pressao.";
+        }
+        return "";
+    }
 }
